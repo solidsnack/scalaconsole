@@ -11,10 +11,9 @@ scalaVersion := "2.12.2"
 assemblyOption in assembly := (assemblyOption in assembly).value
     .copy(prependShellScript = Some(defaultShellScript))
 
-assemblyJarName in assembly := s"bin/${name.value}"
+assemblyJarName in assembly := s"bin/${name.value}-${version.value}.jar"
 
 
 libraryDependencies ++= Seq(
-  "org.scala-lang" % "scala-compiler" % scalaVersion.value,
-  "org.scala-lang" % "scala-library" % scalaVersion.value
+  "org.scala-lang" % "scala-compiler" % scalaVersion.value
 )
