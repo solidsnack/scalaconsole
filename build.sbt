@@ -11,7 +11,7 @@ scalaVersion := "2.12.2"
 assemblyOption in assembly := (assemblyOption in assembly).value
     .copy(prependShellScript = Some(defaultShellScript))
 
-assemblyJarName in assembly := s"bin/${name.value}-${version.value}.jar"
+assemblyJarName in assembly := s"bin/${name.value}.jar"
 
 
 libraryDependencies ++= Seq(

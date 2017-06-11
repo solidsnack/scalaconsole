@@ -7,6 +7,8 @@ object Hi {
     interpreter()
   }
 
+  val internalValue = "This value is drawn from a class in the project."
+
   def interpreter() {
     val settings = new Settings
     settings.deprecation.value = true
