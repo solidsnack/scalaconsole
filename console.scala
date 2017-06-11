@@ -15,6 +15,9 @@ object Hi {
     settings.feature.value = true
     settings.Yreplsync.value = true
     settings.usejavacp.value = true
+    // Change the welcome message and prompt with properties:
+    System.setProperty("scala.repl.welcome", "Welcome to Hi, the REPL demo!")
+    System.setProperty("scala.repl.prompt", "%nhi> ")
     val scala = new ILoop
     scala.process(settings)
   }
