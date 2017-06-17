@@ -13,7 +13,6 @@ object Hi {
     val settings = new Settings
     settings.deprecation.value = true
     settings.feature.value = true
-    settings.Yreplsync.value = true
     settings.usejavacp.value = true
     // Change the welcome message and prompt with properties:
     System.setProperty("scala.repl.welcome", "Welcome to Hi, the REPL demo!")
