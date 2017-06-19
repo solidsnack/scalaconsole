@@ -1,6 +1,3 @@
-import sbtassembly.AssemblyPlugin.defaultShellScript
-
-
 name := "scalaconsole"
 
 version := "1.0"
@@ -8,8 +5,10 @@ version := "1.0"
 scalaVersion := "2.12.2"
 
 
+val script = Seq("#!/bin/sh", "set -eu", """exec java -jar "$0" "$@"""", "")
+
 assemblyOption in assembly := (assemblyOption in assembly).value
-    .copy(prependShellScript = Some(defaultShellScript))
+    .copy(prependShellScript = Some(script))
 
 assemblyJarName in assembly := s"bin/${name.value}.jar"
 
