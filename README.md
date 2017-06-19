@@ -9,7 +9,7 @@ An executable uber jar with an embedded Scala repl.
     Welcome to Scala 2.12.2 (Java HotSpot(TM) 64-Bit Server VM, Java 1.8.0_102).
     Type in expressions for evaluation. Or try :help.
 
-    scala> Hi.internalValue
+    scala> li.pika.hi.Hi.internalValue
     res0: String = This value is drawn from a class in the project.
 ```
 

@@ -1,6 +1,8 @@
+package li.pika.hi
+
+import scala.tools.nsc.Settings
 import scala.tools.nsc.interpreter.ILoop
 import scala.tools.nsc.interpreter.Results._
-import scala.tools.nsc.Settings
 
 
 object Hi {
