@@ -1,0 +1,2 @@
+println("Some text.")
+println(li.pika.hi.Hi.internalValue)

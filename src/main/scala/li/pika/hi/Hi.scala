@@ -10,7 +10,10 @@ object Hi {
     try {
       interpreter(args)
     } catch {
-      case e: Err => err(e.message)
+      case e: Err => {
+        err(e.message)
+        System.exit(1)
+      }
     }
   }
 
