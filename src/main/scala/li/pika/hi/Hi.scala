@@ -7,7 +7,11 @@ import scala.tools.nsc.interpreter.Results._
 
 object Hi {
   def main(args: Array[String]) {
-    interpreter(args)
+    try {
+      interpreter(args)
+    } catch {
+      case e: Err => err(e.message)
+    }
   }
 
   val internalValue = "This value is drawn from a class in the project."
@@ -36,18 +40,14 @@ object Hi {
       scala.createInterpreter()
       scala.intp.initializeSynchronous()
       if (scala.intp.reporter.hasErrors) {
-        err("Interpreter encountered errors during initialization!")
-        return
+        throw Err("Interpreter encountered errors during initialization!")
       }
       for (path <- paths) {
         scala.withFile(path) { f =>
           val result = scala.intp.interpret(f.slurp())
           result match {
             case Success => info(s"${path}: ${result}")
-            case _ => {
-              err(s"${path}: Unsuccessful (${result}) interpretation.")
-              return
-            }
+            case _ => throw Err(s"${path}: Unsuccessful (${result}) run.")
           }
         }
       }
@@ -67,3 +67,6 @@ object Hi {
     Console.err.println("[info] " + message)
   }
 }
+
+
+case class Err(message: String) extends Exception(message)
