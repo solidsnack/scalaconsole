@@ -52,9 +52,13 @@ class Hi {
 
   def batch(paths: Array[String]) {
     // Similar to code in: `scala.tools.nsc.interpreter.ILoop.pasteCommand`.
-    // There doesn't seem to be a clean way to access "batch mode
-    // interpretation". The `scala.tools.nsc.ScriptRunner` utility would
-    // compile in a scope in which `Hi` is missing.
+    // The `scala.tools.nsc.ScriptRunner` utility has given me some problems:
+    //  * Compiling in a scope in which a root object `Hi` is missing in a
+    //    former version of this code. Makes sense because it invokes an
+    //    external "compile server".
+    //  * Getting stuck -- not terminating/returning -- when I tried to use it
+    //    at a later time. Probably not using it right but there was nothing
+    //    obviously wrong about the invocation.
     val scala = new ILoop
     scala.settings = settings
     scala.createInterpreter()
