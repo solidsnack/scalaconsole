@@ -47,10 +47,12 @@ object Hi {
       }
       for (path <- paths) {
         scala.withFile(path) { f =>
-          val result = scala.intp.interpret(f.slurp())
-          result match {
-            case Success => info(s"${path}: ${result}")
-            case _ => throw Err(s"${path}: Unsuccessful (${result}) run.")
+          scala.beQuietDuring {
+            val result = scala.intp.interpret(f.slurp())
+            result match {
+              case Success => info(s"${path}: ${result}")
+              case _ => throw Err(s"${path}: Unsuccessful (${result}) run.")
+            }
           }
         }
       }
