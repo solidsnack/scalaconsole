@@ -62,11 +62,11 @@ object Hi {
     }
   }
 
-  def err(message: String): Unit = {
+  def err(message: String) {
     Console.err.println(s"[${Console.RED}error${Console.RESET}] " + message)
   }
 
-  def info(message: String): Unit = {
+  def info(message: String) {
     Console.err.println("[info] " + message)
   }
 }
