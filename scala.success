@@ -1,3 +1,2 @@
 val t = java.time.LocalDate.now()
 println(s"Some text on ${t}.")
-println(li.pika.hi.Hi.internalValue)

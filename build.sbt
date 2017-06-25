@@ -1,4 +1,5 @@
-name := "scalaconsole"
+name := "consolydon"
+organization := "li.pika"
 
 version := "1.0"
 

@@ -1,16 +1,16 @@
-package li.pika.hi
+package li.pika.consolydon
 
 import scala.tools.nsc.Settings
 import scala.tools.nsc.interpreter.ILoop
 import scala.tools.nsc.interpreter.Results._
 
 
-object Hi {
+object Scala {
   case class Err(message: String) extends Exception(message)
 
   def main(args: Array[String]) {
     try {
-      val interpreter = new Hi()
+      val interpreter = new Scala()
       args match {
         case Array() => interpreter.interactive()
         case _ => interpreter.batch(args)
@@ -23,7 +23,13 @@ object Hi {
     }
   }
 
-  val internalValue = "This value is drawn from a class in the project."
+  def defaultSettings(): Settings = {
+    val settings = new Settings
+    settings.deprecation.value = true
+    settings.feature.value = true
+    settings.usejavacp.value = true
+    settings
+  }
 
   def err(message: String) {
     Console.err.println(s"[${Console.RED}error${Console.RESET}] " + message)
@@ -34,18 +40,15 @@ object Hi {
   }
 }
 
-class Hi {
-  import Hi._
-
-  val settings = new Settings
-  settings.deprecation.value = true
-  settings.feature.value = true
-  settings.usejavacp.value = true
+class Scala(prompt: Option[String] = None,
+            welcome: Option[String] = None,
+            settings: Settings = Scala.defaultSettings()) {
+  import Scala._
 
   def interactive() {
     // Change the prompt and welcome message with properties:
-    System.setProperty("scala.repl.welcome", "Welcome to Hi, the REPL demo!")
-    System.setProperty("scala.repl.prompt", "%nhi> ")
+    prompt.map(System.setProperty("scala.repl.welcome", _))
+    welcome.map(System.setProperty("scala.repl.prompt", _))
     val scala = new ILoop
     scala.process(settings)
   }
