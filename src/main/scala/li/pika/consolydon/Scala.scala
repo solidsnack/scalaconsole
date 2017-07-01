@@ -1,28 +1,16 @@
 package li.pika.consolydon
 
+import javax.script.{Bindings, SimpleBindings}
+
+import scala.collection.JavaConverters._
 import scala.tools.nsc.Settings
 import scala.tools.nsc.interpreter.ILoop
 import scala.tools.nsc.interpreter.Results._
 
+import input._
+
 
 object Scala {
-  case class Err(message: String) extends Exception(message)
-
-  def main(args: Array[String]) {
-    try {
-      val interpreter = new Scala()
-      args match {
-        case Array() => interpreter.interactive()
-        case _ => interpreter.batch(args)
-      }
-    } catch {
-      case e: Err => {
-        err(e.message)
-        System.exit(1)
-      }
-    }
-  }
-
   def defaultSettings(): Settings = {
     val settings = new Settings
     settings.deprecation.value = true
@@ -30,30 +18,28 @@ object Scala {
     settings.usejavacp.value = true
     settings
   }
-
-  def err(message: String) {
-    Console.err.println(s"[${Console.RED}error${Console.RESET}] " + message)
-  }
-
-  def info(message: String) {
-    Console.err.println("[info] " + message)
-  }
 }
 
-class Scala(prompt: Option[String] = None,
-            welcome: Option[String] = None,
-            settings: Settings = Scala.defaultSettings()) {
-  import Scala._
-
-  def interactive() {
-    // Change the prompt and welcome message with properties:
-    prompt.map(System.setProperty("scala.repl.welcome", _))
-    welcome.map(System.setProperty("scala.repl.prompt", _))
+case class Scala(source: ScalaInput,
+                 bindings: Bindings = new SimpleBindings(),
+                 settings: Settings = Scala.defaultSettings())
+  extends Run {
+  lazy val scala: ILoop = {
     val scala = new ILoop
-    scala.process(settings)
+    scala.settings = settings
+    scala.createInterpreter()
+    scala.intp.initializeSynchronous()
+    if (scala.intp.reporter.hasErrors) {
+      throw Err("Interpreter encountered errors during initialization!")
+    }
+    for ((k, v) <- bindings.asScala.toSeq) {
+      val t = v.getClass.getCanonicalName
+      scala.bind(k, t, v)
+    }
+    scala
   }
 
-  def batch(paths: Array[String]) {
+  def apply() {
     // Similar to code in: `scala.tools.nsc.interpreter.ILoop.pasteCommand`.
     // The `scala.tools.nsc.ScriptRunner` utility has given me some problems:
     //  * Compiling in a scope in which a root object `Hi` is missing in a
@@ -62,24 +48,15 @@ class Scala(prompt: Option[String] = None,
     //  * Getting stuck -- not terminating/returning -- when I tried to use it
     //    at a later time. Probably not using it right but there was nothing
     //    obviously wrong about the invocation.
-    val scala = new ILoop
-    scala.settings = settings
-    scala.createInterpreter()
-    scala.intp.initializeSynchronous()
-    if (scala.intp.reporter.hasErrors) {
-      throw Err("Interpreter encountered errors during initialization!")
-    }
-    for (path <- paths) {
-      scala.withFile(path) { f =>
-        scala.beQuietDuring {
-          val result = scala.intp.interpret(f.slurp())
-          result match {
-            case Success => info(s"${path}: ${result}")
-            case _ => throw Err(s"${path}: Unsuccessful (${result}) run.")
-          }
+    scala.withLabel(source.label) {
+      scala.beQuietDuring {
+        val result = scala.intp.interpret(source.text)
+        result match {
+          case Success => {}
+          case Incomplete => throw Err("Incomplete Scala text.")
+          case _ => throw Err(s"Unsuccessful Scala run ('$result').")
         }
       }
     }
   }
 }
-
