@@ -1,11 +1,14 @@
-.PHONY: all assembly test test_success test_failure
+.PHONY: all assembly style test test_success test_failure
 
-all: assembly
+all: assembly style
 
 assembly:
 	sbt assembly
 
-test: test_success test_failure
+style:
+	sbt scalastyle
+
+test: test_success test_failure style
 	@echo --- All tests passed.
 
 test_success: assembly

@@ -1,7 +1,9 @@
 name := "consolydon"
 organization := "li.pika"
 
-version := "1.0"
+enablePlugins(GitBranchPrompt)
+version := git.gitDescribedVersion.value.getOrElse("0.0.0")
+
 
 scalaVersion := "2.12.2"
 
