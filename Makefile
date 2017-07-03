@@ -1,4 +1,5 @@
 .PHONY: all assembly style test test_success test_failure
+run = scala -cp target/scala-*/bin/*.jar example.sc
 
 all: assembly style
 
@@ -13,10 +14,10 @@ test: test_success test_failure style
 
 test_success: assembly
 	@echo --- Testing successful interpretation of well formatted file.
-	java -jar target/scala-*/bin/*.jar scala.success
+	$(run) test-scripts/success.sc
 
 test_failure: assembly
 	@echo --- Testing handling of erroneous program text.
 	@echo --- An error message should be printed.
-	! java -jar target/scala-*/bin/*.jar scala.failure
+	! $(run) test-scripts/failure.sc
 

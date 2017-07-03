@@ -1,13 +1,12 @@
 package li.pika.consolydon
 
 import javax.script.{Bindings, SimpleBindings}
-
 import scala.collection.JavaConverters._
 import scala.tools.nsc.Settings
 import scala.tools.nsc.interpreter.ILoop
 import scala.tools.nsc.interpreter.Results._
 
-import input._
+import errors._
 
 
 object Scala {
@@ -20,18 +19,17 @@ object Scala {
   }
 }
 
-case class Scala(source: ScalaInput,
+case class Scala(source: inputs.Scala,
                  bindings: Bindings = new SimpleBindings(),
                  settings: Settings = Scala.defaultSettings())
-  extends Run {
+  extends Task {
+
   lazy val scala: ILoop = {
     val scala = new ILoop
     scala.settings = settings
     scala.createInterpreter()
     scala.intp.initializeSynchronous()
-    if (scala.intp.reporter.hasErrors) {
-      throw Err("Interpreter encountered errors during initialization!")
-    }
+    if (scala.intp.reporter.hasErrors) throw ScalaSetupErr()
     for ((k, v) <- bindings.asScala.toSeq) {
       val t = v.getClass.getCanonicalName
       scala.bind(k, t, v)
@@ -39,6 +37,7 @@ case class Scala(source: ScalaInput,
     scala
   }
 
+  @throws[Base]
   def apply() {
     // Similar to code in: `scala.tools.nsc.interpreter.ILoop.pasteCommand`.
     // The `scala.tools.nsc.ScriptRunner` utility has given me some problems:
@@ -53,8 +52,12 @@ case class Scala(source: ScalaInput,
         val result = scala.intp.interpret(source.text)
         result match {
           case Success => {}
-          case Incomplete => throw Err("Incomplete Scala text.")
-          case _ => throw Err(s"Unsuccessful Scala run ('$result').")
+          case Incomplete => {
+            throw ScalaExecutionErr(source.label, "Incomplete program text")
+          }
+          case _ => {
+            throw ScalaExecutionErr(source.label, s"Failed run ('${result}')")
+          }
         }
       }
     }
