@@ -1,5 +1,5 @@
 .PHONY: all assembly style test test_success test_failure
-run = scala -cp target/scala-*/bin/*.jar example.sc
+run = scala -nc -cp target/scala-*/bin/*.jar example.sc
 
 all: assembly style
 
