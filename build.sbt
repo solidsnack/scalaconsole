@@ -7,11 +7,8 @@ version := git.gitDescribedVersion.value.getOrElse("0.0.0")
 
 scalaVersion := "2.12.2"
 
+crossScalaVersions := Seq("2.11.11", "2.12.2", "2.13.0-M1")
 
-val script = Seq("#!/bin/sh", "set -eu", """exec java -jar "$0" "$@"""", "")
-
-assemblyOption in assembly := (assemblyOption in assembly).value
-    .copy(prependShellScript = Some(script))
 
 assemblyJarName in assembly := s"bin/${name.value}.jar"
 
