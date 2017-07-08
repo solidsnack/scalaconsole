@@ -13,9 +13,10 @@ See `li.pika.scaladon.Main` for an example of how to use the
     Welcome to Scala 2.12.2 (Java HotSpot(TM) 64-Bit Server VM, Java 1.8.0_102).
     Type in expressions for evaluation. Or try :help.
 
-    scala> val task = li.pika.scaladon.tasks.Task.defaultSettings
+    scala> val task = li.pika.scaladon.tasks.Task.settings()
     task: scala.tools.nsc.Settings =
     Settings {
+      -nc = true
       -d = .
       -deprecation = true
       -usejavacp = true

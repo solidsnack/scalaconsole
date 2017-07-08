@@ -1,77 +1,46 @@
 package li.pika.scaladon
 package tasks
 
-import javax.script.{Bindings, SimpleBindings}
+import java.io.File
 
-import scala.collection.JavaConverters._
-import scala.tools.nsc.Settings
+import scala.tools.nsc.{GenericRunnerSettings, ScriptRunner, Settings}
 import scala.tools.nsc.interpreter.ILoop
-import scala.tools.nsc.interpreter.Results.{Incomplete, Success}
-
 import errors._
 
 
 sealed trait Task extends (() => Unit)
 
 object Task {
-  def defaultSettings(): Settings = {
-    val settings = new Settings
+  val defaultWriter: ((String) => Unit) = Console.err.println
+
+  def settings(forMessages: ((String) => Unit)
+                            = defaultWriter): GenericRunnerSettings = {
+    val settings = new GenericRunnerSettings(forMessages)
     settings.deprecation.value = true
     settings.feature.value = true
     settings.usejavacp.value = true
+    settings.nc.value = true
     settings
   }
 }
 
 
-case class RunScript(source: inputs.Input,
-                     bindings: Bindings = new SimpleBindings(),
-                     settings: Settings = Task.defaultSettings())
+case class RunScript(source: File,
+                     settings: GenericRunnerSettings = Task.settings())
   extends Task {
 
-  lazy val scala: ILoop = {
-    val scala = new ILoop
-    scala.settings = settings
-    scala.createInterpreter()
-    scala.intp.initializeSynchronous()
-    if (scala.intp.reporter.hasErrors) throw ScalaSetupErr()
-    for ((k, v) <- bindings.asScala.toSeq) {
-      val t = v.getClass.getCanonicalName
-      scala.bind(k, t, v)
-    }
-    scala
-  }
-
   def apply() {
-    // Similar to code in: `scala.tools.nsc.interpreter.ILoop.pasteCommand`.
-    // The `scala.tools.nsc.ScriptRunner` utility has given me some problems:
-    //  * Compiling in a scope in which a root object `Hi` is missing in a
-    //    former version of this code. Makes sense because it invokes an
-    //    external "compile server".
-    //  * Getting stuck -- not terminating/returning -- when I tried to use it
-    //    at a later time. Probably not using it right but there was nothing
-    //    obviously wrong about the invocation.
-    scala.withLabel(source.label) {
-      scala.beQuietDuring {
-        val result = scala.intp.interpret(source.text)
-        result match {
-          case Success => {}
-          case Incomplete => {
-            throw ScalaExecutionErr(source.label, "Incomplete program text")
-          }
-          case _ => {
-            throw ScalaExecutionErr(source.label, s"Failed run ('${result}')")
-          }
-        }
-      }
+    val runner = new ScriptRunner
+    if (!runner.runScript(settings, source.getPath, List())) {
+      throw ScalaExecutionErr(source.getPath)
     }
   }
 }
 
 
-case class GoInteractive(prompt: Option[String] = None,
-                         welcome: Option[String] = None,
-                         settings: Settings = Task.defaultSettings())
+case class RunInteractive(prompt: Option[String] = None,
+                          welcome: Option[String] = None,
+                          settings: Settings = Task.settings())
   extends Task {
   def apply() {
     val oldPrompt = prompt.map(_ => System.getProperty("scala.repl.prompt"))
