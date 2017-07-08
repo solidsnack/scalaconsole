@@ -1,13 +1,13 @@
 .PHONY: all assembly style test test_success test_failure
-run = java -jar target/scala-*/bin/*.jar
+run = java -jar target/scala-*/uber.jar
 
 all: assembly style
 
 assembly:
-	sbt assembly
+	sbt --error assembly
 
 style:
-	sbt scalastyle
+	sbt --error scalastyle
 
 test: test_success test_failure style
 	@echo --- All tests passed.

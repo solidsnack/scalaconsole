@@ -1,16 +1,20 @@
-An executable uber jar with an embedded Scala repl.
+# `scaladon`
+
+Embed a Scala interpreter in your application with `scaladon`.
+See `li.pika.scaladon.Main` for an example of how to use the
+`li.pika.scaladon.Engine`.
 
 ```bash
  :; sbt assembly
     ...
-    [success] Total time: 15 s, completed Jun 25, 2017 2:28:04 PM
+    [success] Total time: 12 s, completed Jul 7, 2017 8:03:11 PM
 
- :; target/scala-*/bin/consolydon.jar
+ :; java -jar target/scala-*/uber.jar
     Welcome to Scala 2.12.2 (Java HotSpot(TM) 64-Bit Server VM, Java 1.8.0_102).
     Type in expressions for evaluation. Or try :help.
 
-    scala> li.pika.consolydon.Scala.defaultSettings()
-    res0: scala.tools.nsc.Settings =
+    scala> val task = li.pika.scaladon.tasks.Task.defaultSettings
+    task: scala.tools.nsc.Settings =
     Settings {
       -d = .
       -deprecation = true
@@ -19,8 +23,16 @@ An executable uber jar with an embedded Scala repl.
     }
 ```
 
-Note that the Jar must be called `<something>.jar` for this to work -- if the
-archive passed to Java does not end in `.jar`, classpath issues arise.
+# Configuring The Interpreter
 
-(As long as you use a wrapper script and not a symlink, you can create an entry
-point that does not end in `.jar`.)
+The `li.pika.scaladon.Engine` allows one to set three settings:
+
+```scala
+case class Engine(bindings: Bindings = new SimpleBindings(),
+                  prompt: Option[String] = None,
+                  welcome: Option[String] = None) { ... }
+```
+
+The `bindings` apply for scripts while the `prompt` and `welcome` apply to the
+interactive interpreter. (At present, `scaladon` is not able to set bindings
+for the interactive interpreter.)

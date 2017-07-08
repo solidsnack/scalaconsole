@@ -1,15 +1,19 @@
-package li.pika.consolydon
+package li.pika.scaladon
+package tasks
 
 import javax.script.{Bindings, SimpleBindings}
+
 import scala.collection.JavaConverters._
 import scala.tools.nsc.Settings
 import scala.tools.nsc.interpreter.ILoop
-import scala.tools.nsc.interpreter.Results._
+import scala.tools.nsc.interpreter.Results.{Incomplete, Success}
 
 import errors._
 
 
-object Scala {
+sealed trait Task extends (() => Unit)
+
+object Task {
   def defaultSettings(): Settings = {
     val settings = new Settings
     settings.deprecation.value = true
@@ -19,9 +23,10 @@ object Scala {
   }
 }
 
-case class Scala(source: inputs.Scala,
-                 bindings: Bindings = new SimpleBindings(),
-                 settings: Settings = Scala.defaultSettings())
+
+case class RunScript(source: inputs.Input,
+                     bindings: Bindings = new SimpleBindings(),
+                     settings: Settings = Task.defaultSettings())
   extends Task {
 
   lazy val scala: ILoop = {
@@ -37,7 +42,6 @@ case class Scala(source: inputs.Scala,
     scala
   }
 
-  @throws[Base]
   def apply() {
     // Similar to code in: `scala.tools.nsc.interpreter.ILoop.pasteCommand`.
     // The `scala.tools.nsc.ScriptRunner` utility has given me some problems:
@@ -60,6 +64,26 @@ case class Scala(source: inputs.Scala,
           }
         }
       }
+    }
+  }
+}
+
+
+case class GoInteractive(prompt: Option[String] = None,
+                         welcome: Option[String] = None,
+                         settings: Settings = Task.defaultSettings())
+  extends Task {
+  def apply() {
+    val oldPrompt = prompt.map(_ => System.getProperty("scala.repl.prompt"))
+    prompt.map(System.setProperty("scala.repl.prompt", _))
+    val oldWelcome = welcome.map(_ => System.getProperty("scala.repl.welcome"))
+    welcome.map(System.setProperty("scala.repl.welcome", _))
+    try {
+      val scala = new ILoop
+      scala.process(settings)
+    } finally {
+      oldPrompt.map(System.setProperty("scala.repl.prompt", _))
+      oldWelcome.map(System.setProperty("scala.repl.welcome", _))
     }
   }
 }
