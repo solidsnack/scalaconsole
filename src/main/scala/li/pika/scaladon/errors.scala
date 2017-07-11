@@ -1,9 +1,7 @@
 package li.pika.scaladon.errors
 
 
-
 sealed trait Error extends Exception
-
 
 
 /**
