@@ -16,3 +16,10 @@ assemblyJarName in assembly := s"uber.jar"
 libraryDependencies ++= Seq(
   "org.scala-lang" % "scala-compiler" % scalaVersion.value
 )
+
+
+// Settings for publication to Sonatype.
+publishTo := Some({
+  import Opts.resolver._
+  if (isSnapshot.value) sonatypeSnapshots else sonatypeStaging
+})
