@@ -5,12 +5,14 @@ object Main extends App {
   try {
     val engine = Engine()
 
-    val tasks = args match {
-      case Array() => Array(engine.interpreter())
-      case _ => args.map(engine.task(_))
+    val task = args match {
+      case Array() => engine.interpreter()
+      case Array("-i") => engine.interpreter()
+      case Array(s) => engine.script(s)
+      case Array(s, rest @ _*) => engine.script(s, rest)
     }
 
-    for (task <- tasks) task()
+    task()
   } catch {
     case e: errors.Error => {
       Console.err.println(s"[${Console.RED}error${Console.RESET}] $e")

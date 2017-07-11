@@ -2,9 +2,9 @@ package li.pika.scaladon
 package tasks
 
 import java.io.File
-
 import scala.tools.nsc.{GenericRunnerSettings, ScriptRunner, Settings}
 import scala.tools.nsc.interpreter.ILoop
+
 import errors._
 
 
@@ -26,12 +26,13 @@ object Task {
 
 
 case class RunScript(source: File,
+                     arguments: Seq[String] = Seq(),
                      settings: GenericRunnerSettings = Task.settings())
   extends Task {
 
   def apply() {
     val runner = new ScriptRunner
-    if (!runner.runScript(settings, source.getPath, List())) {
+    if (!runner.runScript(settings, source.getPath, arguments.toList)) {
       throw ScalaExecutionErr(source.getPath)
     }
   }

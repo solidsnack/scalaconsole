@@ -14,9 +14,13 @@ case class Engine(prompt: Option[String] = None,
   val scriptSettings = Task.settings(scriptMessageHandler)
   val interactiveSettings = Task.settings(interactiveMessageHandler)
 
-  def task(path: String): Task = task(new File(path))
+  def script(path: String, arguments: Seq[String] = Seq()): Task = {
+    script(new File(path), arguments)
+  }
 
-  def task(file: File): Task = RunScript(file, scriptSettings)
+  def script(file: File, arguments: Seq[String]): Task = {
+    RunScript(file, arguments, scriptSettings)
+  }
 
   def interpreter(): Task = RunInteractive(prompt = prompt,
                                            welcome = welcome,
