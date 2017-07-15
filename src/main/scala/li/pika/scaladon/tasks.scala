@@ -2,7 +2,7 @@ package li.pika.scaladon
 package tasks
 
 import java.io.File
-import scala.tools.nsc.{GenericRunnerSettings, ScriptRunner, Settings}
+import scala.tools.nsc.{GenericRunnerSettings, Settings}
 import scala.tools.nsc.interpreter.ILoop
 
 import errors._
@@ -31,7 +31,7 @@ case class RunScript(source: File,
   extends Task {
 
   def apply() {
-    val runner = new ScriptRunner
+    val runner = new EncapsulationViolationScriptRunner
     if (!runner.runScript(settings, source.getPath, arguments.toList)) {
       throw ScalaExecutionErr(source.getPath)
     }
