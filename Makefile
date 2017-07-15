@@ -1,4 +1,6 @@
-.PHONY: all assembly style test test_success test_import test_failure
+.PHONY: all assembly style ci
+.PHONY: test test_success test_import test_failure test_throw
+
 run = java -jar tmp/uber.jar
 
 ci: test style
@@ -13,7 +15,7 @@ assembly:
 style:
 	sbt --error scalastyle
 
-test: test_success test_import test_main test_failure
+test: test_success test_import test_main test_failure test_throw
 	@echo --- All tests passed.
 
 test_success: assembly
@@ -32,6 +34,14 @@ test_main: assembly
 
 test_failure: assembly
 	@echo --- Testing handling of erroneous program text.
-	@echo --- An error message should be printed.
 	! $(run) test-scripts/failure.sc
+	@echo --- Success: script failed.
+	@echo --- An error message should have been printed.
+
+test_throw: assembly
+	@echo --- Testing that exceptions are rethrown.
+	@rm -f tmp/first-line-of-stacktrace
+	$(run) test-scripts/throw.sc 2>&1 | head -n1 >tmp/first-line-of-stacktrace
+	fgrep -q 'A wild EXCEPTION appears...' tmp/first-line-of-stacktrace
+	@echo --- Success: first line of stacktrace was the script exception.
 
