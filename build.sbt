@@ -3,7 +3,7 @@ organization := "li.pika"
 
 enablePlugins(GitBranchPrompt)
 version := git.gitDescribedVersion.value.getOrElse("0.0.0")
-
+                                  .split("-").take(2).mkString(".")
 
 scalaVersion := "2.12.2"
 
